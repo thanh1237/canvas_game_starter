@@ -10,11 +10,8 @@ We also load all of our images.
 */
 
 
-let canvas;
-let ctx;
-
-canvas = document.createElement("canvas");
-ctx = canvas.getContext("2d");
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
 canvas.width = 512;
 canvas.height = 480;
 document.body.appendChild(canvas);
@@ -70,16 +67,16 @@ let monsterY = 100;
  * 
  * This is just to let JavaScript know when the user has pressed a key.
 */
-let keysDown = {};
+let keysPressed = {};
 function setupKeyboardListeners() {
   // Check for keys pressed where key represents the keycode captured
   // For now, do not worry too much about what's happening here. 
-  addEventListener("keydown", function (key) {
-    keysDown[key.keyCode] = true;
+  document.addEventListener("keydown", function (e) {
+    keysPressed[e.key] = true;
   }, false);
 
-  addEventListener("keyup", function (key) {
-    delete keysDown[key.keyCode];
+  document.addEventListener("keyup", function (e) {
+    keysPressed[e.key] = false;
   }, false);
 }
 
@@ -94,22 +91,21 @@ let update = function () {
   // Update the time.
   elapsedTime = Math.floor((Date.now() - startTime) / 1000);
 
-
-  if (38 in keysDown) { // Player is holding up key
+  if (keysPressed["ArrowUp"]) {
     heroY -= 5;
   }
-  if (40 in keysDown) { // Player is holding down key
+  if (keysPressed["ArrowDown"]) {
     heroY += 5;
   }
-  if (37 in keysDown) { // Player is holding left key
+  if (keysPressed["ArrowLeft"]) {
     heroX -= 5;
   }
-  if (39 in keysDown) { // Player is holding right key
+  if (keysPressed["ArrowRight"]) {
     heroX += 5;
   }
 
   // Check if player and monster collided. Our images
-  // are about 32 pixels big.
+  // are 32 pixels big.
   if (
     heroX <= (monsterX + 32)
     && monsterX <= (heroX + 32)
@@ -126,7 +122,7 @@ let update = function () {
 /**
  * This function, render, runs as often as possible.
  */
-var render = function () {
+function render() {
   if (bgReady) {
     ctx.drawImage(bgImage, 0, 0);
   }
@@ -144,7 +140,7 @@ var render = function () {
  * update (updates the state of the game, in this case our hero and monster)
  * render (based on the state of our game, draw the right things)
  */
-var main = function () {
+function main() {
   update(); 
   render();
   // Request to do this again ASAP. This is a special method
