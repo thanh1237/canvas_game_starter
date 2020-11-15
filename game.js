@@ -1,14 +1,3 @@
-/*
-  Code modified from:
-  http://www.lostdecadegames.com/how-to-make-a-simple-html5-canvas-game/
-  using graphics purchased from vectorstock.com
-*/
-
-/* Initialization.
-Here, we create and add our "canvas" to the page.
-We also load all of our images. 
-*/
-
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 canvas.width = 1244;
@@ -27,6 +16,7 @@ function loadImages() {
   bgImage.onload = function () {
     // show the background image
     bgReady = true;
+    playAudio2();
   };
   bgImage.src = "images/maxresdefault.jpg";
   shootImage = new Image();
@@ -69,12 +59,10 @@ function loadImages() {
 let aimPointX = canvas.width / 2;
 let aimPointY = canvas.height / 2;
 
-let monsterX = Math.floor(Math.random() * canvas.width) - 600;
-let monsterY = 175 + Math.floor(Math.random() * canvas.height) / 2;
+let monsterX = Math.floor(Math.random() * canvas.width) - 600 + 25;
+let monsterY = 175 + Math.floor(Math.random() * canvas.height) / 2 + 40;
 
 var shootSound;
-var d = aimPointX - monsterX;
-var f = aimPointY - monsterY;
 
 let keysPressed = {};
 function setupKeyboardListeners() {
@@ -85,20 +73,25 @@ function setupKeyboardListeners() {
   document.addEventListener("mousemove", mouseMoveHandler, false);
 }
 
+var i = 0;
 function shoot() {
   fireReady = true;
   shootReady = true;
   playAudio();
-  if (d < 25 || f < 40) {
-    monsterReady = false;
+  var a = monsterX - aimPointX;
+  var b = monsterY - aimPointY;
+
+  var c = Math.sqrt(a * a + b * b);
+  if (c <= 43) {
+    playAudio1();
+    monsterX = Math.floor(Math.random() * canvas.width) - 600;
+    monsterY = 175 + Math.floor(Math.random() * canvas.height) / 2;
+    i = i + 1;
   }
 }
 function stopShoot() {
   fireReady = false;
   shootReady = false;
-  if ((monsterReady = false)) {
-    monsterReady = true;
-  }
 }
 function mouseMoveHandler(e) {
   var relativeX = e.clientX - canvas.offsetLeft;
@@ -123,12 +116,18 @@ function playAudio() {
   var audio = new Audio("sound/shoot" + audioType);
   audio.play();
 }
-function update() {
-  if ((dead = true)) {
-    monsterReady = true;
-  }
+function playAudio1() {
+  var audio = new Audio("sound/enemy-down" + audioType);
+  audio.play();
+}
+function playAudio2() {
+  var audio = new Audio("sound/pubg sound" + audioType);
+  audio.play();
 }
 
+function update() {
+  elapsedTime = Math.floor((Date.now() - startTime) / 1000) + 5;
+}
 function render() {
   if (bgReady) {
     ctx.drawImage(bgImage, 0, 0);
@@ -150,6 +149,17 @@ function render() {
   if (fireReady) {
     ctx.drawImage(fireImage, 625, 350);
   }
+  ctx.fillText(
+    `Seconds Remaining: ${SECONDS_PER_ROUND - elapsedTime}`,
+    20,
+    100
+  );
+  if (SECONDS_PER_ROUND - elapsedTime === 0) {
+    alert(`Your Score Is : ${i}`);
+    document.location.reload();
+    clearInterval(interval);
+  }
+  ctx.fillText(`Enemy Kill: ${i}`, 20, 120);
 }
 
 function main() {
